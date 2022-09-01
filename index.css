@@ -1,0 +1,16 @@
+/* debugging outline */
+* {
+    outline: 1px solid black;
+}
+
+/* Board */
+#board {
+    /* temp find a better way */
+    width: 500px;
+    height: 500px;
+
+
+    display: grid;
+    grid-template-rows: repeat(9, 1fr);
+    grid-template-columns: repeat(9, 1fr);
+}
