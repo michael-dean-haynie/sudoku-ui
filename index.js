@@ -1,49 +1,28 @@
+import { buildBoardMarkup } from './modules/build-board-markup.mjs'
 import { log } from './modules/log.mjs'
 
-const ROWS = 9;
-const COLS = 9;
-const NOTES = 9;
-
 console.log('hello worlds')
-console.log(log || 'could not find log');
+
 buildBoardMarkup()
 
-function buildBoardMarkup() {
-    const boardDiv = document.getElementById('board')
-    console.log(boardDiv)
+console.log(log);
 
-    for(let row = 0; row < ROWS; row++) {
-        for(let col = 0; col < COLS; col++) {
-            const cellDiv = document.createElement('div')
-            cellDiv.id = `c${row}${col}`
-            cellDiv.classList.add('cell')
-            boardDiv.appendChild(cellDiv)
+const events = JSON.parse(log);
+events.forEach(event => {
+    playEvent(event)
+})
 
-            for(let note = 1; note <= NOTES; note++) {
-                const noteDiv = document.createElement('div')
-                noteDiv.id = `${cellDiv.id}n${note}`
-                noteDiv.classList.add('note')
-                noteDiv.innerText = note
-                cellDiv.appendChild(noteDiv)
-
-
-                // TODO: remove
-                // if (cellDiv.id === 'c62' && note < 4) {
-                //     noteDiv.classList.add('eliminated')
-                // }
-            }
-
-            const valueDiv = document.createElement('div')
-            valueDiv.id=`${cellDiv.id}v`
-            valueDiv.classList.add('value')
-            valueDiv.innerText = 0
-            cellDiv.appendChild(valueDiv)
-
-
-            // TODO: remove
-            // if(cellDiv.id === 'c45') {
-            //     cellDiv.classList.add('solved')
-            // }
+function playEvent(event) {
+    const { hints } = event
+    for(let hintIdx = 0; hintIdx < hints.length; hintIdx++) {
+        const hint = hints[hintIdx]
+        if (hint !== "0") {
+            const rowId = Math.floor(hintIdx/9)
+            const colId = hintIdx % 9
+            const cellId = `c${rowId}${colId}`
+            console.log(hint, cellId)
+            // PU@
         }
     }
+
 }
