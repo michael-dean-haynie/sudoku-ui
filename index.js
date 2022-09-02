@@ -1,11 +1,7 @@
 import { buildBoardMarkup } from './modules/build-board-markup.mjs'
 import { log } from './modules/log.mjs'
 
-console.log('hello worlds')
-
 buildBoardMarkup()
-
-console.log(log);
 
 const events = JSON.parse(log);
 events.forEach(event => {
@@ -20,9 +16,15 @@ function playEvent(event) {
             const rowId = Math.floor(hintIdx/9)
             const colId = hintIdx % 9
             const cellId = `c${rowId}${colId}`
-            console.log(hint, cellId)
-            // PU@
+            setCellValue(cellId, hint);
         }
     }
+}
 
+function setCellValue(cellId, cellValue) {
+    const cellDiv = document.getElementById(cellId)
+    cellDiv.classList.add('solved')
+
+    const cellValueDiv = document.getElementById(`${cellId}v`)
+    cellValueDiv.innerText = cellValue
 }
