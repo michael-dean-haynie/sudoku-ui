@@ -1,64 +1,46 @@
-import { buildBoardMarkup } from './modules/build-board-markup.mjs'
-import { log } from './modules/log.mjs'
+import { buildBoardMarkup } from './modules/build-board-markup.js'
+import { log } from './modules/log.js'
+import { context } from './modules/initialize-context.js'
+import { eventHandlers } from './modules/event-handlers/event-handlers.js'
 
-const events = JSON.parse(log);
-const revertActions = [];
-let eventsCursor = -1;
+const events = JSON.parse(log)
+let cursor = -1;
 
 buildBoardMarkup()
 bindButtons()
 
-function applyEventById(eventId) {
-    revertActions[eventId] = []
-    const { hints } = events[eventId]
-    for(let hintIdx = 0; hintIdx < hints.length; hintIdx++) {
-        const hint = hints[hintIdx]
-        if (hint !== "0") {
-            const rowId = Math.floor(hintIdx/9)
-            const colId = hintIdx % 9
-            const cellId = `c${rowId}${colId}`
-            setCellValue(eventId, cellId, hint)
-        }
-    }
+function applyEvent(event, context) {
+    event.revertActions = []
+    const eventType = event.type
+    eventHandlers[eventType](event, context)
 }
 
-function revertEventById(eventId) {
-    revertActions[eventId].forEach(action => action());
-}
-
-function setCellValue(eventId, cellId, cellValue) {
-    const cellDiv = document.getElementById(cellId)
-    revertActions[eventId].push(() => cellDiv.classList.remove('solved'))
-    cellDiv.classList.add('solved')
-
-    const cellValueDiv = document.getElementById(`${cellId}v`)
-    const oldCellValue = cellValueDiv.innerText;
-    revertActions[eventId].push(() => cellValueDiv.innerText = oldCellValue )
-    cellValueDiv.innerText = cellValue
+function revertEvent(event) {
+    event.revertActions.forEach(action => action());
 }
 
 function stepForward() {
-    eventsCursor++
-    applyEventById(eventsCursor)
+    cursor++
+    applyEvent(events[cursor], context)
     updateButtons()
 }
 
 function stepBackward() {
-    revertEventById(eventsCursor)
-    eventsCursor--
+    revertEvent(events[cursor])
+    cursor--
     updateButtons()
 }
 
 function updateButtons() {
     // Update "Step Backward" button
-    if (eventsCursor === -1) {
+    if (cursor === -1) {
         document.getElementById('stepBackward').setAttribute('disabled', 'true')
     } else {
         document.getElementById('stepBackward').removeAttribute('disabled')
     }
 
     // Update "Step Forward" button
-    if (eventsCursor === (events.length - 1)) {
+    if (cursor === (events.length - 1)) {
         document.getElementById('stepForward').setAttribute('disabled', 'true')
     } else {
         document.getElementById('stepForward').removeAttribute('disabled')
