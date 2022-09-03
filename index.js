@@ -2,44 +2,49 @@ import { buildBoardMarkup } from './modules/build-board-markup.mjs'
 import { log } from './modules/log.mjs'
 
 const events = JSON.parse(log);
+const revertActions = [];
 let eventsCursor = -1;
 
 buildBoardMarkup()
 bindButtons()
 
-function applyEvent(event) {
-    const { hints } = event
+function applyEventById(eventId) {
+    revertActions[eventId] = []
+    const { hints } = events[eventId]
     for(let hintIdx = 0; hintIdx < hints.length; hintIdx++) {
         const hint = hints[hintIdx]
         if (hint !== "0") {
             const rowId = Math.floor(hintIdx/9)
             const colId = hintIdx % 9
             const cellId = `c${rowId}${colId}`
-            setCellValue(cellId, hint);
+            setCellValue(eventId, cellId, hint)
         }
     }
 }
 
-function revertEvent(event) {
-    //pu@ while I'm applying an event, build up an array of revert functions/params to call to revert
+function revertEventById(eventId) {
+    revertActions[eventId].forEach(action => action());
 }
 
-function setCellValue(cellId, cellValue) {
+function setCellValue(eventId, cellId, cellValue) {
     const cellDiv = document.getElementById(cellId)
+    revertActions[eventId].push(() => cellDiv.classList.remove('solved'))
     cellDiv.classList.add('solved')
 
     const cellValueDiv = document.getElementById(`${cellId}v`)
+    const oldCellValue = cellValueDiv.innerText;
+    revertActions[eventId].push(() => cellValueDiv.innerText = oldCellValue )
     cellValueDiv.innerText = cellValue
 }
 
 function stepForward() {
     eventsCursor++
-    applyEvent(events[eventsCursor])
+    applyEventById(eventsCursor)
     updateButtons()
 }
 
 function stepBackward() {
-    revertEvent(events[eventsCursor])
+    revertEventById(eventsCursor)
     eventsCursor--
     updateButtons()
 }
