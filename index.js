@@ -43,7 +43,7 @@ function stepBackward() {
         }
     }
 
-    // always update buttons
+    // always update buttons/sliders
     updateButtons()
 }
 
@@ -67,7 +67,7 @@ function stepForward() {
         }
     }
 
-    // always update buttons
+    // always update buttons/sliders
     updateButtons()
 }
 
@@ -97,10 +97,29 @@ function play(startImmediately = true) {
 }
 
 function updatePlaySpeed(event) {
-    rewindPlayInterval = 1000 - event.target.value;
+    rewindPlayInterval = 1000 - parseInt(event.target.value);
     if(rewindPlayIntervalId) {
         intervalChangedFlag = true
 
+    }
+}
+
+function handleScrubEvent(event) {
+    const scrubTo = parseInt(event.target.value)
+    console.log('handling scrub event', { event, value: scrubTo })
+    if(scrubTo !== cursor) {
+        scrub(scrubTo)
+    }
+}
+
+function scrub(scrubTo) {
+    while(cursor !== scrubTo) {
+        console.log('scrubbing:', { scrubTo, cursor })
+        if (scrubTo < cursor) {
+            stepBackward()
+        } else if (cursor < scrubTo) {
+            stepForward()
+        }
     }
 }
 
@@ -140,6 +159,13 @@ function updateButtons() {
         document.getElementById('play').removeAttribute('disabled')
     }
 
+    // update scrub range input
+    if(rewindPausePlay !== 'pause') {
+        document.getElementById('scrub').setAttribute('disabled', 'true')
+    } else {
+        document.getElementById('scrub').removeAttribute('disabled')
+    }
+    document.getElementById('scrub').value = cursor
 }
 
 function bindButtons() {
@@ -150,6 +176,9 @@ function bindButtons() {
     document.getElementById('play').onclick = play
     updateButtons();
 
-    // also bind range inputs (sliders)
+    // also bind/initialize range inputs (sliders)
     document.getElementById('playSpeed').oninput = updatePlaySpeed
+
+    document.getElementById('scrub').setAttribute('max', (events.length - 1).toString())
+    document.getElementById('scrub').oninput = handleScrubEvent
 }
