@@ -1,3 +1,15 @@
+/* Variables */
+:root {
+    --analysis-base-color: blue;
+    --inspected-cell-color: yellow;
+    --contributing-cell-color: orange;
+    --contributing-value-color: var(--contributing-cell-color);
+    --progressed-value-color: green;
+    --progressed-note-color: var(--progressed-value-color);
+
+    --cell-border-pctg: 5%;
+}
+
 /* debugging outline */
 * {
     /* outline: 1px solid black; */
@@ -48,7 +60,8 @@
 }
 
 .note.eliminated {
-    visibility:hidden;
+    /*visibility:hidden;*/
+    color: transparent;
 }
 
 /* Values */
@@ -68,4 +81,53 @@
     align-items: center;
     justify-content: center;
     font-size: 2em;
+}
+
+
+/* Context Related Styles */
+.analysis-base-cell {
+    --cell-border-color: var(--analysis-base-color);
+    background:
+            linear-gradient(to top, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to right, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to bottom, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to left, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%);
+    background-color: white;
+}
+
+.inspected-cell {
+    --cell-border-color: var(--inspected-cell-color);
+    background:
+            linear-gradient(to top, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to right, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to bottom, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to left, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%);
+    background-color: white;
+}
+
+.contributing-cell {
+    --cell-border-color: var(--contributing-cell-color);
+    background:
+            linear-gradient(to top, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to right, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to bottom, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%),
+            linear-gradient(to left, var(--cell-border-color) 0 var(--cell-border-pctg), transparent var(--cell-border-pctg) 100%);
+    background-color: white;
+}
+.contributing-value {
+    /* TODO: improve or decide if necessary */
+    /*background-color: var(--contributing-value-color);*/
+}
+
+/* Progressed Styles */
+.progressed-value {
+    background-color: var(--progressed-value-color);
+}
+.progressed-note {
+    background-color: var(--progressed-note-color);
+}
+
+/* Must come after bordered cells using "background" property */
+.focused-unit {
+    background-color: lightblue;
 }
