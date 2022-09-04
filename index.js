@@ -7,7 +7,8 @@ const events = JSON.parse(log)
 let cursor = -1
 let rewindPausePlay = 'pause'
 let rewindPlayIntervalId
-let rewindPlayInterval = 100
+let rewindPlayInterval = 500
+let intervalChangedFlag = false
 
 buildBoardMarkup()
 bindButtons()
@@ -22,32 +23,60 @@ function revertEvent(event) {
     event.revertActions.forEach(action => action());
 }
 
-function stepForward() {
-    if(cursor !== events.length -1) {
-        cursor++
-        applyEvent(events[cursor], context)
-    }
-    if(cursor === events.length -1) {
-        pause()
-    }
-    updateButtons()
-}
-
 function stepBackward() {
+    // proceed (if not at the beginning)
     if(cursor !== -1) {
         revertEvent(events[cursor])
         cursor--
+
+        // pause if we've reached the beginning
+        if(cursor === -1) {
+            pause()
+        }
+
+        // otherwise, update interval if needed
+        else if (rewindPlayIntervalId && intervalChangedFlag) {
+            intervalChangedFlag = false
+            clearInterval(rewindPlayIntervalId)
+            rewindPlayIntervalId = null
+            rewind(false)
+        }
     }
-    if(cursor === -1) {
-        pause()
-    }
+
+    // always update buttons
     updateButtons()
 }
 
-function rewind() {
+function stepForward() {
+    // proceed (if not at the end)
+    if(cursor !== events.length -1) {
+        cursor++
+        applyEvent(events[cursor], context)
+
+        // pause if we've reached the end
+        if(cursor === events.length -1) {
+            pause()
+        }
+
+        // otherwise, update interval if needed
+        else if (rewindPlayIntervalId && intervalChangedFlag) {
+            intervalChangedFlag = false
+            clearInterval(rewindPlayIntervalId)
+            rewindPlayIntervalId = null
+            play(false)
+        }
+    }
+
+    // always update buttons
+    updateButtons()
+}
+
+function rewind(startImmediately = true) {
     rewindPausePlay = 'rewind'
     rewindPlayIntervalId = setInterval(stepBackward, rewindPlayInterval)
-    stepBackward() // start first one immediately
+    if (startImmediately) {
+        stepBackward() // start first one immediately
+    }
 }
 
 function pause() {
@@ -59,10 +88,20 @@ function pause() {
     }
 }
 
-function play() {
+function play(startImmediately = true) {
     rewindPausePlay = 'play'
     rewindPlayIntervalId = setInterval(stepForward, rewindPlayInterval)
-    stepForward() // start first one immediately
+    if (startImmediately) {
+        stepForward() // start first one immediately
+    }
+}
+
+function updatePlaySpeed(event) {
+    rewindPlayInterval = 1000 - event.target.value;
+    if(rewindPlayIntervalId) {
+        intervalChangedFlag = true
+
+    }
 }
 
 function updateButtons() {
@@ -110,4 +149,7 @@ function bindButtons() {
     document.getElementById('pause').onclick = pause
     document.getElementById('play').onclick = play
     updateButtons();
+
+    // also bind range inputs (sliders)
+    document.getElementById('playSpeed').oninput = updatePlaySpeed
 }
