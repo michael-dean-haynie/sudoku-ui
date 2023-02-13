@@ -1,5 +1,5 @@
 # sudoku-ui
-
+python -m SimpleHTTPServer
 
 
 
